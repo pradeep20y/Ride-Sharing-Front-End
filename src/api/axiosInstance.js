@@ -2,7 +2,7 @@ import axios from "axios";
 import { setToken, getToken } from "../utils/tokenUtils";
 
 const api = axios.create({
-  baseURL: "http://localhost:8082", // Use : instead of =
+  baseURL: "http://localhost:8082/api", // Use : instead of =
   timeout: 10000,                  // Use : instead of =
   headers: {
     'Content-Type': 'application/json',

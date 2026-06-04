@@ -1,15 +1,27 @@
 import {useState} from "react";
-
+import {login} from "../../api/authApi";
+import { setToken } from "../../utils/tokenUtils";
 const LoginForm = () => {
 
-    const [number,setNumber] = useState("");
+    const [identifier,setIdentifier] = useState("");
     const [password,setPassword] = useState("");
+
+    const handleSubmit = async () => {
+        try{
+            const response = await login({identifier,password});
+            setToken(response.token)
+            console.log(response);
+        }
+        catch(error) {
+            alert(error);
+        }    
+    }
+
 
     return (
         
         <div className="container mt-5">
-            {number}
-            {[password]}
+           
             <div className="mx-auto" style={{ maxWidth: "400px" }}>
                 
                 <div className="mb-3">
@@ -18,7 +30,7 @@ const LoginForm = () => {
                         required
                         className="form-control"
                         placeholder="Phone Number"
-                        onChange={(e)=>{setNumber(e.target.value)} }
+                        onChange={(e)=>{setIdentifier(e.target.value)} }
                     />
                 </div>
 
@@ -32,7 +44,10 @@ const LoginForm = () => {
                     />
                 </div>
 
-                <button className="btn btn-primary w-100">
+                <button 
+                className="btn btn-primary w-100"
+                onClick={handleSubmit}
+                >
                     Submit
                 </button>
 
