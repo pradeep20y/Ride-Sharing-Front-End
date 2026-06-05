@@ -35,7 +35,7 @@ api.interceptors.response.use(
       // If Spring Boot returns 401 Unauthorized, the token is invalid or expired
       if (status === 401) {
         console.warn('Session expired or unauthorized. Logging out...');
-        removeToken(); // Clear token from localStorage
+        if (getToken()) removeToken(); // Clear token from localStorage
         
         // Redirect to login page cleanly
         window.location.href = '/login'; 
