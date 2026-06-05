@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { register } from "../../api/authApi";
+import { registerReq } from "../../api/authApi";
+import { Navigate, useNavigate } from "react-router-dom";
 const RegisterForm = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [userType, setUserType] = useState("Passenger");
-
+    const navigate = useNavigate();
     const handleSubmit = async () => {
         const registerData = {
             name,
@@ -15,9 +16,17 @@ const RegisterForm = () => {
             password,
             userType
         };
-        const response = await register(registerData);
-
-        console.log(response);
+        try{
+            const response = await registerReq(registerData);
+            console.log(response);
+            navigate("/login", {replace: true});
+        }
+        catch(error){
+            alert(error);
+        }
+        
+        
+        
     };
     return (
         <div className="container mt-5">

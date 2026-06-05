@@ -1,16 +1,23 @@
 import {useState} from "react";
-import {login} from "../../api/authApi";
+import {loginReq} from "../../api/authApi";
 import { setToken } from "../../utils/tokenUtils";
-const LoginForm = () => {
+import { useNavigate } from "react-router-dom";
+import useAuth from "../../auth/context/AuthContext";
 
+
+
+
+const LoginForm = () => {
+    const navigate = useNavigate();
     const [identifier,setIdentifier] = useState("");
     const [password,setPassword] = useState("");
-
+    const {login} = useAuth();
     const handleSubmit = async () => {
         try{
-            const response = await login({identifier,password});
-            setToken(response.token)
+            const response = await loginReq({identifier,password});
+            login(response.token);
             console.log(response);
+            navigate("/dashboard", {replace: true});
         }
         catch(error) {
             alert(error);
