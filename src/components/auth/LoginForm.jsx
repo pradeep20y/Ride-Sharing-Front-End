@@ -11,13 +11,19 @@ const LoginForm = () => {
     const navigate = useNavigate();
     const [identifier,setIdentifier] = useState("");
     const [password,setPassword] = useState("");
-    const {login} = useAuth();
+    const {login,userInformation} = useAuth();
     const handleSubmit = async () => {
         try{
             const response = await loginReq({identifier,password});
-            login(response.token);
-            console.log(response);
-            navigate("/dashboard", {replace: true});
+            const { userType, token, ...userDetails } = response;
+            login(token);
+            userInformation({
+                userDetails: userDetails, // Contains: name, email, phone, userId, profileId
+                role: userType            // Contains: "DRIVER"
+            });
+
+            console.log("AuthContext successfully updated with:", response);
+            navigate(response.userType === "PASSENGER" ? "/passengerPage" : "/driverPage", { replace: true });
         }
         catch(error) {
             alert(error);

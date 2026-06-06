@@ -1,10 +1,11 @@
 import { Routes, Route } from "react-router-dom";
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from "./pages/DashboardPage";
 import ProtectedRoute from "./auth/routes/ProtectedRoute";
 import Navbar from "./components/Navbar";
 import PublicRoute from "./auth/routes/PublicRoute";
+import PassengerPage from "./pages/PassengerPage";
+import DriverPage from "./pages/DriverPage";
 
 function App() {
   return (
@@ -23,13 +24,20 @@ function App() {
             <Register />
           </PublicRoute>  
         } />
-        <Route path="/dashboard" element=
+        <Route path="/passengerPage" element=
         {
           <ProtectedRoute>
-            <Dashboard/>
+            <PassengerPage/>
+          </ProtectedRoute>
+        } />
+        <Route path="/driverPage" element=
+        {
+          <ProtectedRoute>
+            <DriverPage/>
           </ProtectedRoute>
         } />
       </Routes>
+      
     </>
   );
 }

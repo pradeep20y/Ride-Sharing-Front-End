@@ -3,10 +3,13 @@ import useAuth from "../context/AuthContext"
 
 const PublicRoute = ({ children }) => {
 
-    const { token } = useAuth();
+    const { token, userType } = useAuth();
 
-    if (token) {
-        return <Navigate to="/dashboard" replace />;
+    if (token && userType==="PASSENGER") {
+        return <Navigate to="/passengerPage" replace />;
+    }
+    else if (token && userType==="DRIVER"){
+        return <Navigate to="/driverPage" replace />;
     }
 
     return children;

@@ -17,14 +17,15 @@ const RegisterForm = () => {
             alert("Please fill in license plate and vehicle type.");
             return;
         }
-
+        let response;
         try {
+
             if (userType === "Driver") {
-                await registerDriverReq({ name, email, phone, password, licensePlate, vehicleType });
+                response = await registerDriverReq({ name, email, phone, password, licensePlate, vehicleType });
             } else {
-                await registerReq({ name, email, phone, password });
+                response = await registerReq({ name, email, phone, password });
             }
-            
+            console.log(response);
             navigate("/login", { replace: true });
         } catch (error) {
             alert(error.response?.data?.message || "Registration failed. Please try again.");
