@@ -1,29 +1,16 @@
 import React, { useState } from 'react';
 import SmartMap from '../components/map/SmartMap';
-
-// Geocode a plain-text address via Nominatim and return [lat, lng] or null.
-async function geocodeAddress(address) {
-  if (!address.trim()) return null;
-  try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`
-    );
-    const data = await res.json();
-    if (data?.length > 0) {
-      return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-    }
-  } catch (e) {
-    console.error('Geocoding error', e);
-  }
-  return null;
-}
+import { geocodeAddress } from '../service/maps/geocodeService';
+import api from '../api/axiosInstance';
+import useAuth from '../auth/context/AuthContext';
 
 export default function PassengerPage() {
   const [pickupInput, setPickupInput] = useState('');
   const [destInput, setDestInput]     = useState('');
   const [pickupCoords, setPickupCoords] = useState(null);
   const [destCoords, setDestCoords]     = useState(null);
-
+  const [rideType, setRideType] = useState('ECONOMY');
+  const {user} = useAuth();
   // Resolve a field on Enter key or on blur
   const resolvePickup = async () => {
     const coords = await geocodeAddress(pickupInput);
@@ -35,11 +22,31 @@ export default function PassengerPage() {
     setDestCoords(coords);
   };
 
-  const handleRequestRide = () => {
+  const handleRequestRide = async () => {
     if (!pickupCoords || !destCoords) {
       alert('Please map both points first.');
       return;
     }
+    // rideType = ECONOMY, CONFORT, PREMIUM
+    const body = {
+      passengerId: user.profileId,
+      pickupLatitude: pickupCoords[0],
+      pickupLongitude: pickupCoords[1],
+      pickupAddress: pickupInput,
+      dropoffLatitude: destCoords[0],
+      dropoffLongitude: destCoords[1],
+      dropoffAddress: destInput,
+      rideType: rideType
+    }
+    const response = await api.post("/rides/request",body);
+
+    if (response.data){
+      console.log(response.data);
+      // TODO 1 : In the body for rideType i manually typed which i dont want. i need a dedicated select options with displaying the three options and i want to store it in a use state and that should be used by the body. do it first.
+      //TODO 2 : right After the data is receiver i want to open the websock and connect it to the backend, displaying a spinner which produces resonating like design to tell driver is requesting.
+    }
+
+
     // TODO: dispatch ride request to backend
     console.log('🚖 RIDE DISPATCH', {
       pickup:      { address: pickupInput, coords: pickupCoords },
@@ -102,6 +109,19 @@ export default function PassengerPage() {
                 border: '1px solid #ccc',
               }}
             />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Ride Type</label>
+            <select 
+              value={rideType} 
+              onChange={(e) => setRideType(e.target.value)}
+              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+            >
+              <option value="ECONOMY">Economy</option>
+              <option value="COMFORT">Comfort</option>
+              <option value="PREMIUM">Premium</option>
+            </select>
           </div>
         </div>
 
