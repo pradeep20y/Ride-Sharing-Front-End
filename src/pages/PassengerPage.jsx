@@ -3,6 +3,7 @@ import SmartMap from '../components/map/SmartMap';
 import { geocodeAddress } from '../service/maps/geocodeService';
 import api from '../api/axiosInstance';
 import useAuth from '../auth/context/AuthContext';
+import { connectStomp, subscribeStomp } from '../service/stomp/stompService';
 
 export default function PassengerPage() {
   const [pickupInput, setPickupInput] = useState('');
@@ -10,7 +11,7 @@ export default function PassengerPage() {
   const [pickupCoords, setPickupCoords] = useState(null);
   const [destCoords, setDestCoords]     = useState(null);
   const [rideType, setRideType] = useState('ECONOMY');
-  const {user} = useAuth();
+  const {user,userType,token} = useAuth();
   // Resolve a field on Enter key or on blur
   const resolvePickup = async () => {
     const coords = await geocodeAddress(pickupInput);
@@ -39,13 +40,15 @@ export default function PassengerPage() {
       rideType: rideType
     }
     const response = await api.post("/rides/request",body);
-
-    if (response.data){
+    //TODO 1 : right After the data is receiver i want to open the websock and connect it to the backend, displaying a spinner which produces resonating like design to tell driver is requesting.
+    if (response.data) {
       console.log(response.data);
-      // TODO 1 : In the body for rideType i manually typed which i dont want. i need a dedicated select options with displaying the three options and i want to store it in a use state and that should be used by the body. do it first.
-      //TODO 2 : right After the data is receiver i want to open the websock and connect it to the backend, displaying a spinner which produces resonating like design to tell driver is requesting.
+        connectStomp(userType, token, () => {
+            subscribeStomp(`/topic/passenger/${user.profileId}`, (data) => {
+                console.log('Driver update received:', data);
+            });
+        });
     }
-
 
     // TODO: dispatch ride request to backend
     console.log('🚖 RIDE DISPATCH', {

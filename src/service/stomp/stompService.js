@@ -1,27 +1,26 @@
 import { Client } from '@stomp/stompjs';
-import { WEBSOCKET_URLS, STOMP_SHARED_CONFIG } from './stompConfig';
+import SockJS from 'sockjs-client';
+import { STOMP_SHARED_CONFIG,WS_URL } from './stompConfig';
 
 // This variable will hold our active STOMP connection instance. 
 // It starts as null because we aren't connected yet.
 let stompClient = null;
 
-export const connectStomp = (role,token) => {
-    const url = WEBSOCKET_URLS[role];
-
-    if (!url) {
-        console.error("Cannot connect : Invalid role");
-        return;
-    }
-
+export const connectStomp = (role,token,onConnected) => {
+ 
     stompClient = new Client({
-        brokerURL: url,
+        webSocketFactory: () => new SockJS(WS_URL), // ← SockJS, http not ws
+        connectHeaders: {
+            Authorization: `Bearer ${token}`
+        },
         reconnectDelay: STOMP_SHARED_CONFIG.reconnectDelay,
-        debug: (str) => console.log(str),
         heartbeatIncoming: STOMP_SHARED_CONFIG.heartbeatIncoming,
         heartbeatOutgoing: STOMP_SHARED_CONFIG.heartbeatOutgoing,
+        debug: (str) => console.log(str),
 
         onConnect : (frame) => {
             console.log(`Successfully connected to STOMP websocket for role: ${role}`);
+            if (onConnected) onConnected();   
         },
 
         onStompError : (frame) => {
